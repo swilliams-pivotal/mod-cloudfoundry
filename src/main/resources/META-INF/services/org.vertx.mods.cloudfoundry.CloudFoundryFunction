@@ -1,0 +1,5 @@
+org.vertx.mods.cloudfoundry.func.Echo
+org.vertx.mods.cloudfoundry.func.ListApplications
+org.vertx.mods.cloudfoundry.func.ListServiceConfigurations
+org.vertx.mods.cloudfoundry.func.ListServices
+org.vertx.mods.cloudfoundry.func.ShowCloudInfo
