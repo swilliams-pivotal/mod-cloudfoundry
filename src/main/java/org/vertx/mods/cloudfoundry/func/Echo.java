@@ -15,6 +15,9 @@
  */
 package org.vertx.mods.cloudfoundry.func;
 
+import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.vertx.java.core.json.JsonObject;
+
 /**
  * @author swilliams
  *
@@ -23,6 +26,11 @@ public class Echo extends CloudFoundryFunctionAdapter {
 
   public Echo() {
     super("echo");
+  }
+
+  @Override
+  public JsonObject reply(CloudFoundryClient client, JsonObject message) {
+    return super.reply(client, message);
   }
 
 }

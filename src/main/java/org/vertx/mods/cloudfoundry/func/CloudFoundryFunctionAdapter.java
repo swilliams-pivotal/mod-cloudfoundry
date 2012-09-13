@@ -32,7 +32,7 @@ public class CloudFoundryFunctionAdapter implements CloudFoundryFunction {
   }
 
   @Override
-  public String messageType() {
+  public final String messageType() {
     return messageType;
   }
 

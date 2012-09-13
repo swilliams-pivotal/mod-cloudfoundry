@@ -54,11 +54,11 @@ public class CloudFoundryMod extends BusModBase implements Handler<Message<JsonO
 
       configureAndLogin();
 
-      long handlerRegistrationTimeout = super.getOptionalLongConfig("handlerRegistrationTimeout", 5000L);
+      long handlerRegistrationTimeout = getOptionalLongConfig("handlerRegistrationTimeout", 30_000L);
 
       CountDownLatch latch = new CountDownLatch(1);
       SimpleAsyncResultHandler result = new SimpleAsyncResultHandler(latch);
-      this.handlerId = eb.registerHandler(ADDRESS, this, result);
+      eb.registerHandler(ADDRESS, this, result);
 
       try {
         latch.await(handlerRegistrationTimeout, TimeUnit.MILLISECONDS);
@@ -66,7 +66,7 @@ public class CloudFoundryMod extends BusModBase implements Handler<Message<JsonO
           throw new RuntimeException("Handler registration for " + ADDRESS + " did not succeed before " + handlerRegistrationTimeout + "ms elapsed");
         }
       } catch (InterruptedException e) {
-        // ignored
+        //
       }
 
       eb.publish("vertx.deployments", new JsonObject().putString("deployment", "vertx.cloudfoundry-v1.0"));
@@ -80,9 +80,11 @@ public class CloudFoundryMod extends BusModBase implements Handler<Message<JsonO
   }
 
   private void loadFunctions() {
+
     ClassLoader loader = getClass().getClassLoader();
     ServiceLoader<CloudFoundryFunction> services = 
         ServiceLoader.load(CloudFoundryFunction.class, loader);
+
     for (CloudFoundryFunction function : services) {
       functions.put(function.messageType(), function);
     }
@@ -112,13 +114,14 @@ public class CloudFoundryMod extends BusModBase implements Handler<Message<JsonO
     // TODO offload this blocking operation to another thread?
     // Does this make sense, or should this mod be a worker?
 
-    if (functions.containsKey(type)) {
+    if (type != null && functions.containsKey(type)) {
       if (vertx.isWorker()) {
         System.out.println("worker thread");
       }
 
       if (vertx.isEventLoop()) {
         System.out.println("event loop thread");
+
         vertx.runOnLoop(new Handler<Void>() {
           @Override
           public void handle(Void ignored) {
@@ -132,9 +135,12 @@ public class CloudFoundryMod extends BusModBase implements Handler<Message<JsonO
 
     }
     else {
-      // FIXME remove this, put some sensible logging in
-      System.out.println("json: " + event.body.encode());
-      event.reply(new JsonObject().putString("error", "unknown function: " + type));
+
+      JsonObject error = new JsonObject();
+      error.putString("error", "unknown function: " + type);
+      error.putObject("original-request", event.body);
+
+      event.reply(error);
     }
   }
 

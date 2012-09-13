@@ -67,6 +67,31 @@ public class CloudFoundryModTest extends VertxTestBase {
   }
 
   @Test
+  public void testErrorMessage() throws Exception {
+
+    final LinkedBlockingQueue<JsonObject> queue = new LinkedBlockingQueue<>();
+
+    JsonObject message = new JsonObject().putString("type", "foo");
+    send(queue, message);
+
+    try {
+      JsonObject answer = queue.poll(TIMEOUT, TIME_UNIT);
+
+      System.out.println("answer:" + answer);
+      System.out.printf("For %s sent:%s got: %s, reply matched? %s %n", CloudFoundryMod.ADDRESS, message, answer, message.equals(answer));
+
+      JsonObject error = new JsonObject();
+      error.putString("error", "unknown function: foo");
+      error.putObject("original-request", message);
+
+      Assert.assertTrue(error.equals(answer));
+
+    } catch (InterruptedException e) {
+      //
+    }
+  }
+
+  @Test
   public void testListApplications() throws Exception {
 
     final LinkedBlockingQueue<JsonObject> queue = new LinkedBlockingQueue<>();

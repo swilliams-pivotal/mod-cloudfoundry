@@ -24,7 +24,7 @@ var config = {
 //  'cf-password': 'mypassword',
 }
 
-var modID = vertx.deployModule('vertx.cloudfoundry-v1.0', config, 1, function() {
+vertx.deployModule('vertx.cloudfoundry-v1.0', config, 1, function() {
   tu.appReady();
 });
 

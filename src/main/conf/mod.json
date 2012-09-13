@@ -1,4 +1,5 @@
 {
   "main": "org.vertx.mods.cloudfoundry.CloudFoundryMod",
-  "worker": true
+  "include": "org.cloudfoundry.cloudfoundry-runtime-v0.8.1",
+  "worker": false
 }
